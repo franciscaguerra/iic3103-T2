@@ -169,7 +169,7 @@ def add_album(artist_id):
     artist_id = artist_id
     artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
     tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
-    self = f'https://iic3103-2.herokuapp.com/albums/{id}'
+    self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
 
     new_album = Album(id, artist_id, name, genre, artist, tracks, self)
 
