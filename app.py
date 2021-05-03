@@ -352,7 +352,7 @@ def add_track(album_id):
     album_id = album_id
     times_played = 0
     artist_id = Artist.query.filter_by(id=album.artist_id).first()
-    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.artist_id}'
+    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
     album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
     self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
 
