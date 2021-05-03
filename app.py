@@ -165,10 +165,10 @@ class Album(db.Model):
     self = db.Column(db.String(200))
 
 
-    def __init__(self, id, name, artist_id, genre, artist, tracks, album_self):
+    def __init__(self, id, artist_id, name, genre, artist, tracks, album_self):
         self.id = id
-        self.name = name
         self.artist_id = artist_id
+        self.name = name
         self.genre = genre
         self.artist = artist
         self.tracks = tracks
@@ -177,7 +177,7 @@ class Album(db.Model):
 #Album Schema
 class AlbumSchema(ma.Schema):
     class Meta: 
-        fields = ('id', 'name', 'artist_id', 'genre', 'artist', 'tracks', 'self')
+        fields = ('id', 'artist_id', 'name', 'genre', 'artist', 'tracks', 'self')
 
 #Init schema
 album_schema = AlbumSchema()
@@ -198,14 +198,14 @@ def add_album(artist_id):
         code = Response(status=400)
         return code
 
-    id = b64encode(name.encode()).decode('utf-8')
-    if len(id) > 22:
-        id = id[:22]
-
     artist = Artist.query.get(artist_id)
     if artist == None:
         code = Response(status=422)
         return code
+    
+    id = b64encode(name.encode()).decode('utf-8')
+    if len(id) > 22:
+        id = id[:22]
 
     album = Album.query.get(id)
     if album != None:
@@ -218,7 +218,7 @@ def add_album(artist_id):
     tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
     self = f'https://iic3103-2.herokuapp.com/albums/{id}'
 
-    new_album = Album(id, name, artist_id, genre, artist, tracks, self)
+    new_album = Album(id, artist_id, name, genre, artist, tracks, self)
 
     db.session.add(new_album)
     db.session.commit()
