@@ -332,7 +332,7 @@ def add_track(album_id):
         code = Response(status=400)
         return code
 
-    album = Album.query.filter_by(album_id: album_id).first()
+    album = Album.query.filter_by(id: album_id).first()
     console.log(album)
     if album == None:
         code = Response(status=422)
