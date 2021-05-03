@@ -84,18 +84,16 @@ def get_artists():
 #Get artist
 @app.route('/artists/<artist_id>', methods=['GET'])
 def get_artist(artist_id):
-    try:
-        artist = Artist.query.get(artist_id)
-    except: 
+    artist = Artist.query.get(artist_id)
+    if artist == None:
         return Response(status=404)
     return artist_schema.jsonify(artist), 200
 
 #Get artist's albums
 @app.route('/artists/<artist_id>/albums', methods=['GET'])
 def get_artist_albums(artist_id):
-    try:
-        artist = Artist.query.get(artist_id)
-    except: 
+    artist = Artist.query.get(artist_id)
+    if artist == None:
         return Response(status=404)
     albums = Album.query.filter_by(artist_id=artist_id).all()
     result = albums_schema.dump(albums)
@@ -104,9 +102,8 @@ def get_artist_albums(artist_id):
 #Get artist's tracks
 @app.route('/artists/<artist_id>/tracks', methods=['GET'])
 def get_artist_tracks(artist_id):
-    try:
-        artist = Artist.query.get(artist_id)
-    except: 
+    artist = Artist.query.get(artist_id)
+    if artist == None: 
         return Response(status=404)
     artist_url = Artist.query.filter_by(id = artist_id).first()
     artist_url_self= artist_url.self
@@ -326,24 +323,29 @@ def add_track(album_id):
     try: 
         name = request.json['name']
         duration = request.json['duration']
-        id = b64encode(name.encode()).decode('utf-8')
     except: 
-        return Response(status=400)
+        code = Response(status=400)
+        return code
     
+    if not isinstance(name, str) or not isinstance(duration, float): 
+        code = Response(status=400)
+        return code
+    
+    id = b64encode(name.encode()).decode('utf-8')
+    if len(id) > 22:
+        id = id[:22]
     album = Album.query.get(album_id)
     if album == None:
-        return Response(status=422)
+        code = Response(status=422)
+        return code
     
     track = Track.query.get(id)
     if track != None:
+        code = Response(status=409)
         return track_schema.jsonify(track), 409
+        return code
 
-    if not isinstance(name, str) or not isinstance(duration, float): 
-        return Response(status=400)
-
-    if len(id) > 22:
-        id = b64encode(name.encode()).decode('utf-8')[:22]
-
+    
     album_id = album_id
     times_played = 0
     artist_id = Album.query.filter_by(id =album_id).first()
@@ -355,7 +357,9 @@ def add_track(album_id):
 
     db.session.add(new_track)
     db.session.commit()
+    code = Response(status=201)
     return track_schema.jsonify(new_track), 201
+    return code
 
 #Get all tracks
 @app.route('/tracks', methods=['GET'])
