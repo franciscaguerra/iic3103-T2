@@ -49,7 +49,7 @@ artists_schema = ArtistSchema(many=True)
 #Album Model/Class
 class Album(db.Model):
     id = db.Column(db.String(200), primary_key=True)
-    artist_id = db.Column(db.String(200), db.ForeignKey('artist.id', ondelete='CASCADE'), nullable=False)
+    artist_id = db.Column(db.String(200))
     name = db.Column(db.String(200))
     genre = db.Column(db.String(200))
     artist = db.Column(db.String(200))
@@ -79,7 +79,7 @@ albums_schema = AlbumSchema(many=True)
 #Track Model/Class
 class Track(db.Model):
     id = db.Column(db.String(200), primary_key=True)
-    album_id = db.Column(db.String(200), db.ForeignKey('album.id', ondelete='CASCADE'), nullable=False)
+    album_id = db.Column(db.String(200))
     name = db.Column(db.String(200))
     duration = db.Column(db.Float)
     times_played = db.Column(db.Integer)
