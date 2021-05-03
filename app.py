@@ -291,7 +291,7 @@ def delete_artist(artist_id):
             track = Track.query.get(t['id'])
             db.session.delete(track)
         db.session.delete(album)
-    db.session.delete(artist_delete)
+    db.session.delete(artist)
     db.session.commit()
 
     return Response(status=204)
