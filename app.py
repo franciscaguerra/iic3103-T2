@@ -179,8 +179,6 @@ def add_album(artist_id):
     return album_schema.jsonify(new_album), 201
     return code
 
-
-
 #Create Track
 @app.route('/albums/<album_id>/tracks', methods=['POST'])
 def add_track(album_id):
@@ -212,7 +210,7 @@ def add_track(album_id):
 
     album_id = album_id
     times_played = 0
-    artist_id = Artist.query.get(album.artist_id).first()
+    artist_id = Artist.query.filter_by(album.artist_id).first()
     artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
     album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
     self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
