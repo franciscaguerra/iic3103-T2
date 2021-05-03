@@ -59,9 +59,9 @@ def add_artist():
         return Response("{'code': 400, 'description': 'input invalido'}", status=400)
 
     id = b64encode(name.encode()).decode('utf-8')[0:21]
-    albums = f'https://localhost:5000/artists/{id}/albums'
-    tracks = f'https://localhost:5000/artists/{id}/tracks'
-    self = f'https://localhost:5000/artists/{id}'
+    albums = f'https://iic3103-2.herokuapp.com/artists/{id}/albums'
+    tracks = f'https://iic3103-2.herokuapp.com/artists/{id}/tracks'
+    self = f'https://iic3103-2.herokuapp.com/artists/{id}'
     if Artist.query.get(id): 
         artist = Artist.query.get(id)
         #data = {'code': 409, 'description':'ya existe', 'body':{'name': name, 'age': age, 'id': id, 'albums': albums, 'tracks': tracks, 'self': self}}
@@ -214,9 +214,9 @@ def add_album(artist_id):
     if not isinstance(name, str) or not isinstance(genre, str): 
         return Response("{'code': 400, 'description': 'input invalido'}", status=400)
     artist_id = artist_id
-    artist = f'https://localhost:5000/artists/{artist_id}'
-    tracks = f'https://localhost:5000/albums/{id}/tracks'
-    self = f'https://localhost:5000/albums/{id}'
+    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
+    tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
+    self = f'https://iic3103-2.herokuapp.com/albums/{id}'
 
     new_album = Album(id, name, artist_id, genre, artist, tracks, self)
 
@@ -350,9 +350,9 @@ def add_track(album_id):
     album_id = album_id
     times_played = 0
     artist_id = Album.query.filter_by(id =album_id).first()
-    artist = f'https://localhost:5000/artists/{artist_id.artist_id}'
-    album = f'https://localhost:5000/albums/{album_id}'
-    self = f'https://localhost:5000/tracks/{id}'
+    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.artist_id}'
+    album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
+    self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
 
     new_track = Track(id, album_id, name, duration, times_played, artist, album, self)
 
