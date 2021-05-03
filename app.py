@@ -135,6 +135,96 @@ def add_artist():
         db.session.commit()
     return artist_schema.jsonify(new_artist), 201
 
+
+#Create Album
+@app.route('/artists/<artist_id>/albums', methods=['POST'])
+def add_album(artist_id):
+    try:
+        name=request.json['name']
+        genre=request.json['genre']
+        
+    except: 
+        code = Response(status=400)
+        return code
+
+    if not isinstance(name, str) or not isinstance(genre, str): 
+        code = Response(status=400)
+        return code
+
+    artist = Artist.query.get(artist_id)
+    if artist == None:
+        code = Response(status=422)
+        return code
+    
+    id = b64encode(name.encode()).decode('utf-8')
+    if len(id) > 22:
+        id = id[:22]
+
+    album = Album.query.get(id)
+    if album != None:
+        code = Response(status=409)
+        return album_schema.jsonify(album), 409
+        return code
+        
+    artist_id = artist_id
+    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
+    tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
+    self = f'https://iic3103-2.herokuapp.com/albums/{id}'
+
+    new_album = Album(id, artist_id, name, genre, artist, tracks, self)
+
+    db.session.add(new_album)
+    db.session.commit()
+    code = Response(status=201)
+    return album_schema.jsonify(new_album), 201
+    return code
+
+
+
+#Create Track
+@app.route('/albums/<album_id>/tracks', methods=['POST'])
+def add_track(album_id):
+    try: 
+        name = request.json['name']
+        duration = request.json['duration']
+    except: 
+        code = Response(status=400)
+        return code
+    
+    if not isinstance(name, str) or not isinstance(duration, float): 
+        code = Response(status=400)
+        return code
+
+    album = Album.query.get(album_id)
+    if album == None:
+        code = Response(status=422)
+        return code
+
+    id = b64encode(name.encode()).decode('utf-8')
+    if len(id) > 22:
+        id = id[:22]
+    
+    track = Track.query.get(id)
+    if track != None:
+        code = Response(status=409)
+        return track_schema.jsonify(track), 409
+        return code
+
+    album_id = album_id
+    times_played = 0
+    artist_id = Artist.query.get(album.artist_id).first()
+    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
+    album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
+    self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
+
+    new_track = Track(id, album_id, name, duration, times_played, artist, album, self)
+
+    db.session.add(new_track)
+    db.session.commit()
+    code = Response(status=201)
+    return track_schema.jsonify(new_track), 201
+    return code
+
 #Get all artists
 @app.route('/artists', methods=['GET'])
 def get_artists():
@@ -216,50 +306,6 @@ def delete_artist(artist_id):
 
 
 
-
-#Create Album
-@app.route('/artists/<artist_id>/albums', methods=['POST'])
-def add_album(artist_id):
-    try:
-        name=request.json['name']
-        genre=request.json['genre']
-        
-    except: 
-        code = Response(status=400)
-        return code
-
-    if not isinstance(name, str) or not isinstance(genre, str): 
-        code = Response(status=400)
-        return code
-
-    artist = Artist.query.get(artist_id)
-    if artist == None:
-        code = Response(status=422)
-        return code
-    
-    id = b64encode(name.encode()).decode('utf-8')
-    if len(id) > 22:
-        id = id[:22]
-
-    album = Album.query.get(id)
-    if album != None:
-        code = Response(status=409)
-        return album_schema.jsonify(album), 409
-        return code
-        
-    artist_id = artist_id
-    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
-    tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
-    self = f'https://iic3103-2.herokuapp.com/albums/{id}'
-
-    new_album = Album(id, artist_id, name, genre, artist, tracks, self)
-
-    db.session.add(new_album)
-    db.session.commit()
-    code = Response(status=201)
-    return album_schema.jsonify(new_album), 201
-    return code
-
 #Get all albums
 @app.route('/albums', methods=['GET'])
 def get_albums():
@@ -318,50 +364,6 @@ def delete_album(album_id):
 
     return Response(status=204)
 
-
-#Create Track
-@app.route('/albums/<album_id>/tracks', methods=['POST'])
-def add_track(album_id):
-    try: 
-        name = request.json['name']
-        duration = request.json['duration']
-    except: 
-        code = Response(status=400)
-        return code
-    
-    if not isinstance(name, str) or not isinstance(duration, float): 
-        code = Response(status=400)
-        return code
-
-    album = Album.query.get(album_id)
-    if album == None:
-        code = Response(status=422)
-        return code
-
-    id = b64encode(name.encode()).decode('utf-8')
-    if len(id) > 22:
-        id = id[:22]
-    
-    track = Track.query.get(id)
-    if track != None:
-        code = Response(status=409)
-        return track_schema.jsonify(track), 409
-        return code
-
-    album_id = album_id
-    times_played = 0
-    artist_id = Artist.query.get(album.artist_id).first()
-    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
-    album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
-    self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
-
-    new_track = Track(id, album_id, name, duration, times_played, artist, album, self)
-
-    db.session.add(new_track)
-    db.session.commit()
-    code = Response(status=201)
-    return track_schema.jsonify(new_track), 201
-    return code
     
 
 #Get all tracks
