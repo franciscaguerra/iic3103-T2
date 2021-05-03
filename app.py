@@ -53,10 +53,10 @@ def add_artist():
         name =  request.json['name']
         age = request.json['age']
     except: 
-        return Response("{'code': 400, 'description': 'input invalido'}", status=400)
+        return Response(status=400)
 
     if not isinstance(name, str) or not isinstance(age, int): 
-        return Response("{'code': 400, 'description': 'input invalido'}", status=400)
+        return Response(status=400)
 
     id = b64encode(name.encode()).decode('utf-8')[0:21]
     albums = f'https://iic3103-2.herokuapp.com/artists/{id}/albums'
@@ -64,25 +64,20 @@ def add_artist():
     self = f'https://iic3103-2.herokuapp.com/artists/{id}'
     if Artist.query.get(id): 
         artist = Artist.query.get(id)
-        #data = {'code': 409, 'description':'ya existe', 'body':{'name': name, 'age': age, 'id': id, 'albums': albums, 'tracks': tracks, 'self': self}}
-        data = {'code': 409, 'description':'ya existe', 'body':{'name': artist.name, 'age': artist.age, 'id': artist.id, 'albums': artist.albums, 'tracks': artist.tracks, 'self': artist.self}}
-        return jsonify(data), 409
+        return artist_schema.jsonify(artist), 409
 
     else: 
         new_artist = Artist(id, name, age, albums, tracks, self)
         db.session.add(new_artist)
         db.session.commit()
-    
-    data = {'code': 201, 'description':'artista creado', 'body':{'name': name, 'age': age, 'id': id, 'albums': albums, 'tracks': tracks, 'self': self}}
-    return jsonify(data), 201
+    return artist_schema.jsonify(new_artist), 201
 
 #Get all artists
 @app.route('/artists', methods=['GET'])
 def get_artists():
     all_artists = Artist.query.all()
     result = artists_schema.dump(all_artists)
-    data = {'code': 200, 'description':'resultados obtenidos', 'body': result}
-    return jsonify(data), 200
+    return jsonify(result), 200
 
 #Get artist
 @app.route('/artists/<artist_id>', methods=['GET'])
@@ -90,9 +85,8 @@ def get_artist(artist_id):
     try:
         artist = Artist.query.get(artist_id)
     except: 
-        return Response("{'code': 404, 'description': 'artista no encontrado'}", status=404)
-    data = {'code': 200, 'description':'operación exitosa', 'body':{'name': artist.name, 'age': artist.age, 'id': artist.id, 'albums': artist.albums, 'tracks': artist.tracks, 'self': artist.self}}
-    return jsonify(data), 200
+        return Response(status=404)
+    return artist_schema.jsonify(artist), 200
 
 #Get artist's albums
 @app.route('/artists/<artist_id>/albums', methods=['GET'])
@@ -100,11 +94,10 @@ def get_artist_albums(artist_id):
     try:
         artist = Artist.query.get(artist_id)
     except: 
-        return Response("{'code': 404, 'description': 'artista no encontrado'}", status=404)
+        return Response(status=404)
     albums = Album.query.filter_by(artist_id=artist_id).all()
     result = albums_schema.dump(albums)
-    data = {'code': 200, 'description':'resultados obtenidos', 'body': result}
-    return jsonify(data), 200
+    return jsonify(result), 200
 
 #Get artist's tracks
 @app.route('/artists/<artist_id>/tracks', methods=['GET'])
@@ -112,13 +105,12 @@ def get_artist_tracks(artist_id):
     try:
         artist = Artist.query.get(artist_id)
     except: 
-        return Response("{'code': 404, 'description': 'artista no encontrado'}", status=404)
+        return Response(status=404)
     artist_url = Artist.query.filter_by(id = artist_id).first()
     artist_url_self= artist_url.self
     tracks = Track.query.filter_by(artist=artist_url_self).all()
     result = tracks_schema.dump(tracks)
-    data = {'code': 200, 'description':'resultados obtenidos', 'body': result}
-    return jsonify(data), 200
+    return jsonify(result), 200
 
 #Play artist
 @app.route('/artists/<artist_id>/albums/play', methods=['PUT'])
@@ -129,14 +121,14 @@ def play_artist(artist_id):
         tracks = Track.query.filter_by(artist = artist_url_self).all()
         result = tracks_schema.dump(tracks)
     except: 
-        return Response("{'code': 404, 'description': 'artista no encontrado'}", status=404)
+        return Response(status=404)
     #artist_url = Artist.query.filter_by(id = artist_id).first()
     #artist_url_self= artist_url.self
     for track in result:
         track = Track.query.get(track['id'])
         track.times_played += 1
     db.session.commit()
-    return Response("{'code': 200, 'description': 'todas las canciones del artista fueron reproducidas'}", status=200)
+    return Response(status=200)
 
 #Delete artist
 @app.route('/artists/<artist_id>', methods=['DELETE'])
@@ -144,7 +136,7 @@ def delete_artist(artist_id):
     try:
         artist = Artist.query.get(artist_id)
     except: 
-        return Response("{'code': 404, 'description':'artista inexistente'}", status=404)
+        return Response(status=404)
     artist = Artist.query.get(artist_id)
     albums = Album.query.filter_by(artist = artist.self).all()
     result= albums_schema.dump(albums)
@@ -159,7 +151,7 @@ def delete_artist(artist_id):
     db.session.delete(artist)
     db.session.commit()
 
-    return Response("{'code': 204, 'description': 'artista eliminado'}", status=204)
+    return Response(status=204)
 
 
 #Album Model/Class
@@ -403,7 +395,7 @@ def delete_track(track_id):
     db.session.delete(track)
     db.session.commit()
 
-    return Response("{'code': 204, 'description': 'canción eliminada'}", status=204)
+    return Response(status=204)
 
 
 
