@@ -261,7 +261,6 @@ def album(album_id):
             db.session.delete(track)
         db.session.delete(album)
         db.session.commit()
-
         return Response(status=204)
 
 #Play album
