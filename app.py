@@ -278,17 +278,14 @@ def play_artist(artist_id):
 #Delete artist
 @app.route('/artists/<artist_id>', methods=['DELETE'])
 def delete_artist(artist_id):
-    try:
-        artist = Artist.query.get(artist_id)
-    except: 
-        code = Response(status=404)
-        return code
-    artist_delete = Artist.query.get(artist_id)
+    artist = Artist.query.get(artist_id)
+    if artist == None:
+        return Response(status=404)
     albums_delete = Album.query.filter_by(artist_id = artist_id).all()
     result= albums_schema.dump(albums_delete)
     for a in result:
         album = Album.query.get(a['id'])
-        tracks = Track.query.filter_by(album_id = album.id).all()
+        tracks = Track.query.filter_by(album_id = a['id']).all()
         result_tracks = tracks_schema.dump(tracks)
         for t in result_tracks:
             track = Track.query.get(t['id'])
@@ -298,8 +295,6 @@ def delete_artist(artist_id):
     db.session.commit()
 
     return Response(status=204)
-
-
 
 #Get all albums
 @app.route('/albums', methods=['GET'])
@@ -358,8 +353,6 @@ def delete_album(album_id):
     db.session.commit()
 
     return Response(status=204)
-
-    
 
 #Get all tracks
 @app.route('/tracks', methods=['GET'])
