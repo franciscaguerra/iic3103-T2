@@ -374,7 +374,7 @@ def get_track(track_id):
     track = Track.query.get(track_id)
     if track == None:
         return Response(status=404)
-    return track_schema.jsonify(data), 200
+    return track_schema.jsonify(track), 200
 
 #Put track
 @app.route('/tracks/<track_id>/play', methods=['PUT'])
