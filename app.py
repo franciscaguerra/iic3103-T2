@@ -334,7 +334,7 @@ def add_track(album_id):
         return code
 
     album = Album.query.get(album_id)
-    if not album.self:
+    if album == None:
         code = Response(status=422)
         return code
 
@@ -347,6 +347,7 @@ def add_track(album_id):
         code = Response(status=409)
         return track_schema.jsonify(track), 409
         return code
+
     album_id = album_id
     times_played = 0
     artist_id = Artist.query.get(album.artist_id).first()
