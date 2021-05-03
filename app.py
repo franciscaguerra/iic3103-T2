@@ -156,7 +156,7 @@ def add_album(artist_id):
         code = Response(status=422)
         return code
     
-    id = b64encode(name.encode()).decode('utf-8')
+    id = b64encode(('{}:{}'.format(name, artist_id)).encode()).decode('utf-8')
     if len(id) > 22:
         id = id[:22]
 
@@ -198,9 +198,9 @@ def add_track(album_id):
         code = Response(status=422)
         return code
 
-    id = b64encode(name.encode()).decode('utf-8')
-    if len(id) > 22:
-        id = id[:22]
+    id_decode = b64encode(('{}:{}'.format(name, album_id)).encode()).decode('utf-8')
+    if len(id_decode) > 22:
+        id = id_decode[:22]
     
     track = Track.query.get(id)
     if track != None:
@@ -400,4 +400,3 @@ def delete_track(track_id):
     db.session.commit()
     code = Response(status=204)
     return code
-
