@@ -197,10 +197,8 @@ def add_album(artist_id):
     id = b64encode(name.encode()).decode('utf-8')
     if len(id) > 22:
         id = b64encode(name.encode()).decode('utf-8')[:22]
-    artist_id_encode = b64encode(artist_id.encode()).decode('utf-8')
-    try: 
-        artist = Artist.query.get(artist_id_encode)
-    except: 
+    artist = Artist.query.get(artist_id_encode)
+    if artist == None:
         return Response(status=422)
 
     if Album.query.get(id):
@@ -231,19 +229,17 @@ def get_albums():
 #Get album
 @app.route('/albums/<album_id>', methods=['GET'])
 def get_album(album_id):
-    try:
-        album = Album.query.get(album_id)
-    except: 
+    album = Album.query.get(album_id)
+    if album == None: 
         return Response(status=404)
     return album_schema.jsonify(data), 200
 
 #Get album's tracks
 @app.route('/albums/<album_id>/tracks', methods=['GET'])
 def get_albums_tracks(album_id):
-    try: 
-        album = Album.query.get(album_id)
-    except: 
-        return Response("{'code': 404, 'description': 'álbum no encontrado'}", status=404)
+    album = Album.query.get(album_id)
+    if album == None:
+        return Response(status=404)
     tracks = Track.query.filter_by(album_id=album_id)
     result = tracks_schema.dump(tracks)
     return jsonify(result), 200
@@ -251,17 +247,16 @@ def get_albums_tracks(album_id):
 #Play album
 @app.route('/albums/<album_id>/tracks/play', methods=['PUT'])
 def play_album(album_id):
-    if Album.query.get(album_id) == None:
-        album = Album.query.get(album_id)
+    album = Album.query.get(album_id)
+    if album == None:
+        return Response(status=404)
+    else: 
         tracks = Track.query.filter_by(album_id = album_id).all()
         result = tracks_schema.dump(tracks)
         for track in result:
             track = Track.query.get(track['id'])
             track.times_played += 1
         db.session.commit()
-        return Response(status=404)
-        
-    else: 
         return Response(status=200)
         
     
@@ -270,9 +265,8 @@ def play_album(album_id):
 #Delete album
 @app.route('/albums/<album_id>', methods=['DELETE'])
 def delete_album(album_id):
-    try: 
-        album = Album.query.get(album_id)
-    except: 
+    album = Album.query.get(album_id)
+    if album == None:
         return Response(status=404)
     tracks = Track.query.filter_by(album_id = album_id).all()
     result = tracks_schema.dump(tracks)
@@ -327,9 +321,8 @@ def add_track(album_id):
     except: 
         return Response(status=400)
     
-    try: 
-        album = Album.query.get(album_id)
-    except: 
+    album = Album.query.get(album_id)
+    if album == None:
         return Response(status=422)
     
     if Track.query.get(id):
