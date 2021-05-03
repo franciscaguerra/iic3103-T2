@@ -333,7 +333,6 @@ def add_track(album_id):
         return code
 
     album = Album.query.get(album_id)
-    console.log(album)
     if album == None:
         code = Response(status=422)
         return code
