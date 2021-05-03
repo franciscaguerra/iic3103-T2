@@ -197,7 +197,7 @@ def add_album(artist_id):
         code = Response(status=400)
         return code
 
-    id = album_id = b64encode(name.encode()).decode('utf-8')
+    id = b64encode(name.encode()).decode('utf-8')
     if len(id) > 22:
         id = id[:22]
 
