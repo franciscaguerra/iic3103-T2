@@ -135,16 +135,17 @@ def delete_artist(artist_id):
     try:
         artist = Artist.query.get(artist_id)
     except: 
-        return Response(status=404)
-    artist = Artist.query.get(artist_id)
-    albums = Album.query.filter_by(artist = artist.self).all()
-    result= albums_schema.dump(albums)
-    for album in result:
-        album = Album.query.get(album['id'])
-        tracks = Track.query.filter_by(album_id = album.id)
+        code = Response(status=404)
+        return code
+    artist_delete = Artist.query.get(artist_id)
+    albums_delete = Album.filter_by(artist_id = artist_id).all()
+    result= albums_schema.dump(albums_delete)
+    for a in result:
+        album = Album.query.get(a['id'])
+        tracks = Track.query.filter_by(album_id = album.id).all()
         result_tracks = tracks_schema.dump(tracks)
-        for track in result_tracks:
-            track = Track.query.get(track['id'])
+        for t in result_tracks:
+            track = Track.query.get(t['id'])
             db.session.delete(track)
         db.session.delete(album)
     db.session.delete(artist)
