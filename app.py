@@ -242,14 +242,27 @@ def get_album(album_id):
     return album_schema.jsonify(album), 200
 
 #Get album's tracks
-@app.route('/albums/<album_id>/tracks', methods=['GET'])
-def get_albums_tracks(album_id):
+@app.route('/albums/<album_id>/tracks', methods=['GET', 'DELETE'])
+def album(album_id):
     album = Album.query.get(album_id)
     if album == None:
-        return Response(status=404)
-    tracks = Track.query.filter_by(album_id=album_id)
-    result = tracks_schema.dump(tracks)
-    return jsonify(result), 200
+        code = Response(status=404)
+        return code
+    if request.method == 'GET':
+        tracks = Track.query.filter_by(album_id=album_id)
+        result = tracks_schema.dump(tracks)
+        return jsonify(result), 200
+    
+    if request.method == 'DELETE':
+        tracks = Track.query.filter_by(album_id = album_id).all()
+        result = tracks_schema.dump(tracks)
+        for track in result:
+            track = Track.query.get(track['id'])
+            db.session.delete(track)
+        db.session.delete(album)
+        db.session.commit()
+
+        return Response(status=204)
 
 #Play album
 @app.route('/albums/<album_id>/tracks/play', methods=['PUT'])
@@ -266,24 +279,11 @@ def play_album(album_id):
         db.session.commit()
         return Response(status=200)
         
-    
-    
 
 #Delete album
 @app.route('/albums/<album_id>', methods=['DELETE'])
 def delete_album(album_id):
-    album = Album.query.get(album_id)
-    if album == None:
-        return Response(status=404)
-    tracks = Track.query.filter_by(album_id = album_id).all()
-    result = tracks_schema.dump(tracks)
-    for track in result:
-        track = Track.query.get(track['id'])
-        db.session.delete(track)
-    db.session.delete(album)
-    db.session.commit()
-
-    return Response(status=204)
+    
 
 
 
@@ -346,11 +346,9 @@ def add_track(album_id):
         code = Response(status=409)
         return track_schema.jsonify(track), 409
         return code
-
-    
     album_id = album_id
     times_played = 0
-    artist_id = Artist.query.filter_by(id=album.artist_id).first()
+    artist_id = Artist.query.get(album.artist_id).first()
     artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
     album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
     self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
