@@ -6,19 +6,18 @@ import os
 
 
 #Init app
-def create_app():
-    app = Flask(__name__) 
-    basedir = os.path.abspath(os.path.dirname(__file__))
+app = Flask(__name__)
+basedir = os.path.abspath(os.path.dirname(__file__))
 
-    #Datanase
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#Datanase
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    #Init db
-    db = SQLAlchemy(app)
+#Init db
+db = SQLAlchemy(app)
 
-    #Init ma
-    ma = Marshmallow(app)
+#Init ma
+ma = Marshmallow(app)
 
 #Artist Model/Class
 class Artist(db.Model):
