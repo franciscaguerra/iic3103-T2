@@ -406,7 +406,5 @@ def delete_track(track_id):
     return Response("{'code': 204, 'description': 'canción eliminada'}", status=204)
 
 
-#Run Server
-if __name__ == '__main__': 
-    app.run()
+
 
