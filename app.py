@@ -242,26 +242,15 @@ def get_album(album_id):
     return album_schema.jsonify(album), 200
 
 #Get album's tracks
-@app.route('/albums/<album_id>/tracks', methods=['GET', 'DELETE'])
-def album(album_id):
+@app.route('/albums/<album_id>/tracks', methods=['GET'])
+def get_albums_tracks(album_id):
     album = Album.query.get(album_id)
     if album == None:
         code = Response(status=404)
         return code
-    if request.method == 'GET':
-        tracks = Track.query.filter_by(album_id=album_id)
-        result = tracks_schema.dump(tracks)
-        return jsonify(result), 200
-    
-    if request.method == 'DELETE':
-        tracks = Track.query.filter_by(album_id = album_id).all()
-        result = tracks_schema.dump(tracks)
-        for track in result:
-            track = Track.query.get(track['id'])
-            db.session.delete(track)
-        db.session.delete(album)
-        db.session.commit()
-        return Response(status=204)
+    tracks = Track.query.filter_by(album_id=album_id)
+    result = tracks_schema.dump(tracks)
+    return jsonify(result), 200
 
 #Play album
 @app.route('/albums/<album_id>/tracks/play', methods=['PUT'])
@@ -282,7 +271,18 @@ def play_album(album_id):
 #Delete album
 @app.route('/albums/<album_id>', methods=['DELETE'])
 def delete_album(album_id):
-    
+    album = Album.query.get(album_id)
+    if album == None:
+        return Response(status=404)
+    tracks = Track.query.filter_by(album_id = album_id).all()
+    result = tracks_schema.dump(tracks)
+    for track in result:
+        track = Track.query.get(track['id'])
+        db.session.delete(track)
+    db.session.delete(album)
+    db.session.commit()
+
+    return Response(status=204)
 
 
 
