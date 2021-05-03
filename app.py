@@ -46,11 +46,72 @@ class ArtistSchema(ma.Schema):
 artist_schema = ArtistSchema()
 artists_schema = ArtistSchema(many=True)
 
+#Album Model/Class
+class Album(db.Model):
+    id = db.Column(db.String(200), primary_key=True)
+    artist_id = db.Column(db.String(200), db.ForeignKey('artist.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String(200))
+    genre = db.Column(db.String(200))
+    artist = db.Column(db.String(200))
+    tracks = db.Column(db.String(200))
+    self = db.Column(db.String(200))
+
+
+    def __init__(self, id, artist_id, name, genre, artist, tracks, album_self):
+        self.id = id
+        self.artist_id = artist_id
+        self.name = name
+        self.genre = genre
+        self.artist = artist
+        self.tracks = tracks
+        self.self = album_self
+
+#Album Schema
+class AlbumSchema(ma.Schema):
+    class Meta: 
+        fields = ('id', 'artist_id', 'name', 'genre', 'artist', 'tracks', 'self')
+
+#Init schema
+album_schema = AlbumSchema()
+albums_schema = AlbumSchema(many=True)
+
+
+#Track Model/Class
+class Track(db.Model):
+    id = db.Column(db.String(200), primary_key=True)
+    album_id = db.Column(db.String(200), db.ForeignKey('album.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String(200))
+    duration = db.Column(db.Float)
+    times_played = db.Column(db.Integer)
+    artist = db.Column(db.String(200))
+    album = db.Column(db.String(200))
+    self = db.Column(db.String(200))
+
+
+    def __init__(self, id, album_id, name, duration, times_played, artist, album, track_self):
+        self.id = id
+        self.album_id = album_id
+        self.name = name
+        self.duration = duration
+        self.times_played = times_played
+        self.artist = artist
+        self.album = album
+        self.self = track_self
+
+#Track Schema
+class TrackSchema(ma.Schema):
+    class Meta: 
+        fields = ('id', 'album_id', 'name', 'duration', 'times_played', 'artist', 'album', 'self')
+
+#Init schema
+track_schema = TrackSchema()
+tracks_schema = TrackSchema(many=True)
+
 #Create Artist
 @app.route('/artists', methods=['POST'])
 def add_artist():
     try:
-        name =  request.json['name']
+        name = request.json['name']
         age = request.json['age']
     except: 
         return Response(status=400)
@@ -154,34 +215,7 @@ def delete_artist(artist_id):
     return Response(status=204)
 
 
-#Album Model/Class
-class Album(db.Model):
-    id = db.Column(db.String(200), primary_key=True)
-    artist_id = db.Column(db.String(200), db.ForeignKey('artist.id', ondelete='CASCADE'), nullable=False)
-    name = db.Column(db.String(200))
-    genre = db.Column(db.String(200))
-    artist = db.Column(db.String(200))
-    tracks = db.Column(db.String(200))
-    self = db.Column(db.String(200))
 
-
-    def __init__(self, id, artist_id, name, genre, artist, tracks, album_self):
-        self.id = id
-        self.artist_id = artist_id
-        self.name = name
-        self.genre = genre
-        self.artist = artist
-        self.tracks = tracks
-        self.self = album_self
-
-#Album Schema
-class AlbumSchema(ma.Schema):
-    class Meta: 
-        fields = ('id', 'artist_id', 'name', 'genre', 'artist', 'tracks', 'self')
-
-#Init schema
-album_schema = AlbumSchema()
-albums_schema = AlbumSchema(many=True)
 
 #Create Album
 @app.route('/artists/<artist_id>/albums', methods=['POST'])
@@ -284,38 +318,6 @@ def delete_album(album_id):
 
     return Response(status=204)
 
-
-
-#Track Model/Class
-class Track(db.Model):
-    id = db.Column(db.String(200), primary_key=True)
-    album_id = db.Column(db.String(200), db.ForeignKey('album.id', ondelete='CASCADE'), nullable=False)
-    name = db.Column(db.String(200))
-    duration = db.Column(db.Float)
-    times_played = db.Column(db.Integer)
-    artist = db.Column(db.String(200))
-    album = db.Column(db.String(200))
-    self = db.Column(db.String(200))
-
-
-    def __init__(self, id, album_id, name, duration, times_played, artist, album, track_self):
-        self.id = id
-        self.album_id = album_id
-        self.name = name
-        self.duration = duration
-        self.times_played = times_played
-        self.artist = artist
-        self.album = album
-        self.self = track_self
-
-#Track Schema
-class TrackSchema(ma.Schema):
-    class Meta: 
-        fields = ('id', 'album_id', 'name', 'duration', 'times_played', 'artist', 'album', 'self')
-
-#Init schema
-track_schema = TrackSchema()
-tracks_schema = TrackSchema(many=True)
 
 #Create Track
 @app.route('/albums/<album_id>/tracks', methods=['POST'])
