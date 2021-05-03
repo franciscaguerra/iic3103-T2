@@ -381,10 +381,12 @@ def get_track(track_id):
 def play_track(track_id):
     track = Track.query.get(track_id)
     if track == None:
-        return Response(status=404)
+        code = Response(status=404)
+        return code
     track.times_played += 1
     db.session.commit()
-    return Response(status=200)
+    code = Response(status=200)
+    return code
     
 
 #Delete track
@@ -392,11 +394,12 @@ def play_track(track_id):
 def delete_track(track_id):
     track = Track.query.get(track_id)
     if track == None:
-        return Response(status=404)
+        code = Response(status=404)
+        return code
     db.session.delete(track)
     db.session.commit()
-
-    return Response(status=204)
+    code = Response(status=204)
+    return code
 
 
 
