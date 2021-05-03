@@ -186,8 +186,8 @@ albums_schema = AlbumSchema(many=True)
 @app.route('/artists/<artist_id>/albums', methods=['POST'])
 def add_album(artist_id):
     try:
-        name =  request.json['name']
-        genre = request.json['genre']
+        name=request.json['name']
+        genre=request.json['genre']
         
     except: 
         code = Response(status=400)
@@ -197,7 +197,7 @@ def add_album(artist_id):
         code = Response(status=400)
         return code
 
-    id = album_id = b64encode(('{}:{}'.format(name, artist_id)).encode()).decode('utf-8')
+    id = album_id = b64encode(name.encode()).decode('utf-8')
     if len(id) > 22:
         id = id[:22]
 
@@ -209,7 +209,7 @@ def add_album(artist_id):
     album = Album.query.get(id)
     if album != None:
         code = Response(status=409)
-        return album_schema.jsonify(result), 409
+        return album_schema.jsonify(album), 409
         return code
         
     artist_id = artist_id
@@ -400,7 +400,4 @@ def delete_track(track_id):
     db.session.commit()
     code = Response(status=204)
     return code
-
-
-
 
