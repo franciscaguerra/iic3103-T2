@@ -238,7 +238,7 @@ def get_album(album_id):
     album = Album.query.get(album_id)
     if album == None: 
         return Response(status=404)
-    return album_schema.jsonify(data), 200
+    return album_schema.jsonify(album), 200
 
 #Get album's tracks
 @app.route('/albums/<album_id>/tracks', methods=['GET'])
