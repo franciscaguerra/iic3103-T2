@@ -138,7 +138,7 @@ def delete_artist(artist_id):
         code = Response(status=404)
         return code
     artist_delete = Artist.query.get(artist_id)
-    albums_delete = Album.filter_by(artist_id = artist_id).all()
+    albums_delete = Album.query.filter_by(artist_id = artist_id).all()
     result= albums_schema.dump(albums_delete)
     for a in result:
         album = Album.query.get(a['id'])
