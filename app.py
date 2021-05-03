@@ -148,7 +148,7 @@ def delete_artist(artist_id):
             track = Track.query.get(t['id'])
             db.session.delete(track)
         db.session.delete(album)
-    db.session.delete(artist)
+    db.session.delete(artist_delete)
     db.session.commit()
 
     return Response(status=204)
@@ -331,14 +331,15 @@ def add_track(album_id):
     if not isinstance(name, str) or not isinstance(duration, float): 
         code = Response(status=400)
         return code
-    
-    id = b64encode(name.encode()).decode('utf-8')
-    if len(id) > 22:
-        id = id[:22]
+
     album = Album.query.get(album_id)
     if album == None:
         code = Response(status=422)
         return code
+
+    id = b64encode(name.encode()).decode('utf-8')
+    if len(id) > 22:
+        id = id[:22]
     
     track = Track.query.get(id)
     if track != None:
