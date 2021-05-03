@@ -191,20 +191,19 @@ def add_album(artist_id):
         genre = request.json['genre']
         id = b64encode(name.encode()).decode('utf-8')[0:21]
     except: 
-        return Response("{'code': 400, 'description': 'input invalido'}", status=400)
+        return Response(status=400)
      
     try: 
         artist = Artist.query.get(artist_id)
     except: 
-        return Response("{'code': 422, 'description': 'artista no existe'}", status=422)
+        return Response(status=422)
 
     if Album.query.get(id):
         album = Album.query.get(id)
-        data = {'code': 409, 'description':'album ya existe', 'body':{'id': album.id, 'name': album.name, 'artist_id': album.artist_id, 'genre': album.genre, 'artist': album.artist, 'tracks': album.tracks, 'self': album.self}}
-        return jsonify(data), 409
+        return album_schema.jsonify(result), 409
 
     if not isinstance(name, str) or not isinstance(genre, str): 
-        return Response("{'code': 400, 'description': 'input invalido'}", status=400)
+        return Response(status=400)
     artist_id = artist_id
     artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
     tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
@@ -214,16 +213,14 @@ def add_album(artist_id):
 
     db.session.add(new_album)
     db.session.commit()
-    data = {'code': 201, 'description':'album creado', 'body':{'id': new_album.id, 'name': new_album.name, 'artist_id': new_album.artist_id, 'genre': new_album.genre, 'artist': new_album.artist, 'tracks': new_album.tracks, 'self': new_album.self}}
-    return jsonify(data), 201
+    return album_schema.jsonify(new_album), 201
 
 #Get all albums
 @app.route('/albums', methods=['GET'])
 def get_albums():
     all_albums = Album.query.all()
     result = albums_schema.dump(all_albums)
-    data = {'code': 200, 'description':'resultados obtenidos', 'body': result}
-    return jsonify(data), 200
+    return jsonify(result), 200
 
 #Get album
 @app.route('/albums/<album_id>', methods=['GET'])
@@ -231,9 +228,8 @@ def get_album(album_id):
     try:
         album = Album.query.get(album_id)
     except: 
-        return Response("{'code': 404, 'description': 'álbum no encontrado'}", status=404)
-    data = {'code': 200, 'description':'operación exitosa', 'body':{'id': album.id, 'name': album.name, 'artist_id': artist_id, 'genre': album.genre, 'artist': album.artist, 'tracks': album.tracks, 'self': album.self}}
-    return jsonify(data), 200
+        return Response(status=404)
+    return album_schema.jsonify(data), 200
 
 #Get album's tracks
 @app.route('/albums/<album_id>/tracks', methods=['GET'])
@@ -244,8 +240,7 @@ def get_albums_tracks(album_id):
         return Response("{'code': 404, 'description': 'álbum no encontrado'}", status=404)
     tracks = Track.query.filter_by(album_id=album_id)
     result = tracks_schema.dump(tracks)
-    data = {'code': 200, 'description':'resultados obtenidos', 'body': result}
-    return jsonify(data), 200
+    return jsonify(result), 200
 
 #Play album
 @app.route('/albums/<album_id>/tracks/play', methods=['PUT'])
@@ -258,10 +253,10 @@ def play_album(album_id):
             track = Track.query.get(track['id'])
             track.times_played += 1
         db.session.commit()
-        return Response("{'code': 404, 'description': 'álbum no encontrado'}", status=404)
+        return Response(status=404)
         
     else: 
-        return Response("{'code': 200, 'description': 'canciones del álbum reproducidas'}", status=200)
+        return Response(status=200)
         
     
     
@@ -272,7 +267,7 @@ def delete_album(album_id):
     try: 
         album = Album.query.get(album_id)
     except: 
-        return Response("{'code': 404, 'description':'álbum no encontrado'}", status=404)
+        return Response(status=404)
     tracks = Track.query.filter_by(album_id = album_id).all()
     result = tracks_schema.dump(tracks)
     for track in result:
@@ -281,7 +276,7 @@ def delete_album(album_id):
     db.session.delete(album)
     db.session.commit()
 
-    return Response("{'code': 204, 'description': 'álbum eliminado'}", status=204)
+    return Response(status=204)
 
 
 
@@ -324,20 +319,19 @@ def add_track(album_id):
         duration = request.json['duration']
         id = b64encode(name.encode()).decode('utf-8')[0:21]
     except: 
-        return Response("{'code': 400, 'description': 'input invalido'}", status=400)
+        return Response(status=400)
     
     try: 
         album = Album.query.get(album_id)
     except: 
-        return Response("{'code': 422, 'description': 'álbum no existe'}", status=422)
+        return Response(status=422)
     
     if Track.query.get(id):
         track = Track.query.get(id)
-        data = {'code': 409, 'description':'canción ya existe', 'body':{'id': track.id, 'album_id': track.album_id, 'name': track.name, 'duration': track.duration, 'times_played': track.times_played, 'artist': track.artist, 'album': track.album, 'self': track.self}}
-        return jsonify(data), 409
+        return track_schema.jsonify(track), 409
 
     if not isinstance(name, str) or not isinstance(duration, float): 
-        return Response("{'code': 400, 'description': 'input invalido'}", status=400)
+        return Response(status=400)
 
     album_id = album_id
     times_played = 0
@@ -350,17 +344,14 @@ def add_track(album_id):
 
     db.session.add(new_track)
     db.session.commit()
-
-    data = {'code': 201, 'description':'canción creada', 'body':{'id': new_track.id, 'album_id': new_track.album_id, 'name': new_track.name, 'duration': new_track.duration, 'times_played': new_track.times_played, 'artist': new_track.artist, 'album': new_track.album, 'self': new_track.self}}
-    return jsonify(data), 201
+    return track_schema.jsonify(new_track), 201
 
 #Get all tracks
 @app.route('/tracks', methods=['GET'])
 def get_tracks():
     all_tracks = Track.query.all()
     result = tracks_schema.dump(all_tracks)
-    data = {'code': 200, 'description':'operación exitosa', 'body': result}
-    return jsonify(data), 200
+    return jsonify(result), 200
 
 #Get track
 @app.route('/tracks/<track_id>', methods=['GET'])
@@ -368,10 +359,8 @@ def get_track(track_id):
     try: 
         track = Track.query.get(track_id)
     except: 
-        return Response("{'code': 404, 'description': 'Canción no encontrada'}", status=404)
-    
-    data = {'code': 200, 'description':'operación exitosa', 'body':{'id': track.id, 'album_id': track.album_id, 'name': track.name, 'duration': track.duration, 'times_played': track.times_played, 'artist': track.artist, 'album': track.album, 'self': track.self}}
-    return jsonify(data), 200
+        return Response(status=404)
+    return track_schema.jsonify(data), 200
 
 #Put track
 @app.route('/tracks/<track_id>/play', methods=['PUT'])
@@ -380,9 +369,9 @@ def play_track(track_id):
         track = Track.query.get(track_id)
         track.times_played += 1
     except: 
-        return Response("{'code': 404, 'description': 'canción no encontrada'}", status=404)
+        return Response(status=404)
     db.session.commit()
-    return Response("{'code': 200, 'description': 'canción reproducida'}", status=200)
+    return Response(status=200)
     
 
 #Delete track
@@ -391,7 +380,7 @@ def delete_track(track_id):
     try: 
         track = Track.query.get(track_id)
     except: 
-        return Response("{'code': 404, 'description':'canción inexistente'}", status=404)
+        return Response(status=404)
     db.session.delete(track)
     db.session.commit()
 
