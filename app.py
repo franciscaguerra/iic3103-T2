@@ -332,7 +332,7 @@ def add_track(album_id):
         return code
 
     album = Album.query.get(album_id)
-    if album == None:
+    if not album.self:
         code = Response(status=422)
         return code
 
@@ -352,13 +352,44 @@ def add_track(album_id):
     album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
     self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
 
-    new_track = Track(id, album_id, name, duration, times_played, artist, album, self)
+    try:
+            name = request.json['name']
+            duration = request.json['duration']
+        
+        except:
+            status_code = Response(status=400)
+            return status_code
 
-    db.session.add(new_track)
-    db.session.commit()
-    code = Response(status=201)
-    return track_schema.jsonify(new_track), 201
-    return code
+        if type(name) != str or type(duration) != float:
+            status_code = Response(status=400)
+            return status_code
+        
+        album = Album.query.get(album_id)
+        if album == None:
+            status_code = Response(status=422)
+            return status_code
+
+        track_id = b64encode(('{}:{}'.format(name, album_id)).encode()).decode('utf-8')
+
+        if len(track_id) > 22:
+            track_id = track_id[:22]
+        
+        track = Track.query.get(track_id)
+        if track != None:
+            status_code = Response(status=409)
+            return track_schema.jsonify(track), 409
+            return status_code
+
+        times_played = 0
+        artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
+        album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
+        track_self = f'https://iic3103-2.herokuapp.com/tracks/{track_id}'
+
+        new_track = Track(track_id, album_id, name, duration, times_played, artist, album, track_self)
+        db.session.add(new_track)
+        db.session.commit()
+
+        status_code = Response(status=201)
 
 #Get all tracks
 @app.route('/tracks', methods=['GET'])
