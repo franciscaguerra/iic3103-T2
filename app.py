@@ -191,14 +191,15 @@ def add_album(artist_id):
     try:
         name =  request.json['name']
         genre = request.json['genre']
-        id = b64encode(name.encode()).decode('utf-8')
-        if len(id) > 22:
-            id = b64encode(name.encode()).decode('utf-8')[:22]
+        
     except: 
         return Response(status=400)
-     
+    id = b64encode(name.encode()).decode('utf-8')
+    if len(id) > 22:
+        id = b64encode(name.encode()).decode('utf-8')[:22]
+    artist_id_encode = b64encode(artist_id.encode()).decode('utf-8')
     try: 
-        artist = Artist.query.get(artist_id)
+        artist = Artist.query.get(artist_id_encode)
     except: 
         return Response(status=422)
 
@@ -209,7 +210,7 @@ def add_album(artist_id):
     if not isinstance(name, str) or not isinstance(genre, str): 
         return Response(status=400)
         
-    artist_id = artist_id
+    artist_id = artist_id_encode
     artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
     tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
     self = f'https://iic3103-2.herokuapp.com/albums/{id}'
