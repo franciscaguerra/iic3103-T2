@@ -193,22 +193,29 @@ def add_album(artist_id):
         genre = request.json['genre']
         
     except: 
-        return Response(status=400)
-    id = b64encode(name.encode()).decode('utf-8')
-    if len(id) > 22:
-        id = b64encode(name.encode()).decode('utf-8')[:22]
-    artist = Artist.query.get(artist_id_encode)
-    if artist == None:
-        return Response(status=422)
-
-    if Album.query.get(id):
-        album = Album.query.get(id)
-        return album_schema.jsonify(result), 409
+        code = Response(status=400)
+        return code
 
     if not isinstance(name, str) or not isinstance(genre, str): 
-        return Response(status=400)
+        code = Response(status=400)
+        return code
+
+    id = album_id = b64encode(('{}:{}'.format(name, artist_id)).encode()).decode('utf-8')
+    if len(id) > 22:
+        id = id[:22]
+
+    artist = Artist.query.get(artist_id)
+    if artist == None:
+        code = Response(status=422)
+        return code
+
+    album = Album.query.get(id)
+    if album != None:
+        code = Response(status=409)
+        return album_schema.jsonify(result), 409
+        return code
         
-    artist_id = artist_id_encode
+    artist_id = artist_id
     artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id}'
     tracks = f'https://iic3103-2.herokuapp.com/albums/{id}/tracks'
     self = f'https://iic3103-2.herokuapp.com/albums/{id}'
@@ -217,7 +224,9 @@ def add_album(artist_id):
 
     db.session.add(new_album)
     db.session.commit()
+    code = Response(status=201)
     return album_schema.jsonify(new_album), 201
+    return code
 
 #Get all albums
 @app.route('/albums', methods=['GET'])
@@ -325,8 +334,8 @@ def add_track(album_id):
     if album == None:
         return Response(status=422)
     
-    if Track.query.get(id):
-        track = Track.query.get(id)
+    track = Track.query.get(id)
+    if track != None:
         return track_schema.jsonify(track), 409
 
     if not isinstance(name, str) or not isinstance(duration, float): 
@@ -358,20 +367,18 @@ def get_tracks():
 #Get track
 @app.route('/tracks/<track_id>', methods=['GET'])
 def get_track(track_id):
-    try: 
-        track = Track.query.get(track_id)
-    except: 
+    track = Track.query.get(track_id)
+    if track == None:
         return Response(status=404)
     return track_schema.jsonify(data), 200
 
 #Put track
 @app.route('/tracks/<track_id>/play', methods=['PUT'])
 def play_track(track_id):
-    try: 
-        track = Track.query.get(track_id)
-        track.times_played += 1
-    except: 
+    track = Track.query.get(track_id)
+    if track == None:
         return Response(status=404)
+    track.times_played += 1
     db.session.commit()
     return Response(status=200)
     
@@ -379,9 +386,8 @@ def play_track(track_id):
 #Delete track
 @app.route('/tracks/<track_id>', methods=['DELETE'])
 def delete_track(track_id):
-    try: 
-        track = Track.query.get(track_id)
-    except: 
+    track = Track.query.get(track_id)
+    if track == None:
         return Response(status=404)
     db.session.delete(track)
     db.session.commit()
