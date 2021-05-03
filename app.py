@@ -183,8 +183,8 @@ def add_album(artist_id):
 @app.route('/albums/<album_id>/tracks', methods=['POST'])
 def add_track(album_id):
     try: 
-        name = request.json['name']
-        duration = request.json['duration']
+        name=request.json['name']
+        duration=request.json['duration']
     except: 
         code = Response(status=400)
         return code
@@ -207,11 +207,8 @@ def add_track(album_id):
         code = Response(status=409)
         return track_schema.jsonify(track), 409
         return code
-
-    album_id = album_id
     times_played = 0
-    artist_id = Artist.query.filter_by(album.artist_id).first()
-    artist = f'https://iic3103-2.herokuapp.com/artists/{artist_id.id}'
+    artist = f'https://iic3103-2.herokuapp.com/artists/{album.artist_id}'
     album = f'https://iic3103-2.herokuapp.com/albums/{album_id}'
     self = f'https://iic3103-2.herokuapp.com/tracks/{id}'
 
